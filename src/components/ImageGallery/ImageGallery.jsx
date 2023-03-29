@@ -12,8 +12,8 @@ export const ImageGallery = ({ searchQuery }) => {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idRe');
   const [error, setError] = useState(null);
-  const [openedImage, setOpenedImage] = useState(null);
-  const [totalHits, setTotalHits] = useState(null);
+  const [opened, setOpenedImage] = useState(null);
+  const [total, setTotalHits] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,12 +41,12 @@ export const ImageGallery = ({ searchQuery }) => {
   }, [searchQuery]);
 
   const onLoadMore = () => {
-    setPage(prevPage => prevPage + 1);
     galleryAPI
-      .getImages(searchQuery, page + 1)
+      .getImages(searchQuery, page)
       .then(({ hits }) => {
         if (hits.length > 0) {
           setImages(prevImages => [...prevImages, ...hits]);
+          setPage(prevPage => prevPage + 1);
         } else {
           throw new Error(` Query: ${searchQuery}`);
         }
@@ -79,14 +79,12 @@ export const ImageGallery = ({ searchQuery }) => {
         <ImageGalleryList>
           <ImageGalleryItem images={images} onClick={handleOpenPicture} />
         </ImageGalleryList>
-        {images.length < totalHits && totalHits === 0 ? (
+        {images.length < total ? (
           <Button onClick={onLoadMore} />
         ) : (
           Notify.info(`Last matches with query: ${searchQuery}`)
         )}
-        {openedImage && (
-          <Modal openedImage={openedImage} onClick={handleClosePicture} />
-        )}
+        {opened && <Modal openedImage={opened} onClick={handleClosePicture} />}
       </>
     );
   }
